@@ -51,7 +51,7 @@ export default function FaucetPage() {
     // 偵測 AdBlocker
     const checkAdBlock = () => {
       const ad = document.createElement('div');
-      ad.className = 'adsbox'; // 常見的廣告攔截特徵 class
+      ad.className = 'adsbox';
       ad.style.height = '1px';
       ad.style.width = '1px';
       ad.style.position = 'absolute';
@@ -108,7 +108,6 @@ export default function FaucetPage() {
             : `成功！交易哈希: ${result.txHash}`,
       });
       
-      // 更新餘額
       if (faucetInfo) {
         setFaucetInfo({
           balance: (parseFloat(faucetInfo.balance) - 0.000001).toFixed(6),
@@ -125,17 +124,15 @@ export default function FaucetPage() {
     }
   };
 
-  // 暫時將驗證狀態設為 true 以方便預覽
   useEffect(() => {
     setIsHumanVerified(true);
-    // 開發階段為了能發送 API，也給一個假的 turnstile token
     setTurnstileToken("dummy-token-for-dev");
   }, []);
 
   return (
     <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col font-sans relative">
       
-      {/* 頂部導覽列 (z-[100000] 最高層級，確保按鈕能精準點擊不被遮擋) */}
+      {/* 頂部導覽列 */}
       <nav className="relative z-[100000] flex items-center justify-between bg-[#1a1e29] border-b border-gray-800">
         <div className="flex">
           <Link 
@@ -167,61 +164,83 @@ export default function FaucetPage() {
         </div>
       </nav>
 
-      {/* 1. 左側固定廣告 (Fixed Layout - 在大螢幕下靠左固定) */}
-      <aside className="hidden xl:block fixed left-4 top-32 w-[160px] z-50">
+      {/* 1. 左側 A-Ads 黏性廣告 (僅在桌面大螢幕 xl 以上顯示) */}
+      <div className="hidden xl:block">
         <div
           dangerouslySetInnerHTML={{
             __html: `
-<div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;">
-          <iframe data-aa='2446091' src='//acceptable.a-ads.com/2446091/?size=Adaptive&background_color=000000&title_color=ffffff'
-                            style='border:0; padding:0; width:100%; height:auto; overflow:hidden;display: block;margin: auto'></iframe>
+<div style="position: absolute; z-index: 99999">
+      <input autocomplete="off" type="checkbox" id="aadsstickymqz5zjft" hidden />
+      <div style="padding-top: 0; padding-bottom: 0;">
+        <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);left:0;min-width:100px">
+          <label for="aadsstickymqz5zjft" style="bottom: 24px;margin:0 auto;right:0;left:0;max-width:24px; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.70); padding: 4px;z-index: 99999;cursor:pointer">
+            <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
+              <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
+            </svg>
+          </label>
+          <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;height:100%; display: flex;flex-direction: column; justify-content: center">
+                        <iframe data-aa=2446091 src=//acceptable.a-ads.com/2446091/?size=Adaptive&background_color=000000 style='border:0; padding:0; width:70%; height:70%; overflow:hidden; margin: 0 auto'></iframe>
+                    </div>
         </div>
+        <style>
+      #aadsstickymqz5zjft:checked + div {
+        display: none;
+      }
+    </style>
+    </div></div>
 
 `
           }}
         />
-      </aside>
+      </div>
 
-      {/* 2. 右側固定廣告 (Fixed Layout - 在大螢幕下靠右固定) */}
-      <aside className="hidden xl:block fixed right-4 top-32 w-[160px] z-50">
+      {/* 2. 右側 A-Ads 黏性廣告 (僅在桌面大螢幕 xl 以上顯示) */}
+      <div className="hidden xl:block">
         <div
           dangerouslySetInnerHTML={{
             __html: `
-<div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;">
-          <iframe data-aa='2446093' src='//acceptable.a-ads.com/2446093/?size=Adaptive&background_color=000000'
-                            style='border:0; padding:0; width:100%; height:auto; overflow:hidden;display: block;margin: auto'></iframe>
-          <div style="width: 100%;margin:auto;position: absolute;left: 0;right: 0">
-            <a target="_blank" style="display:inline-block;font-size: 13px;color: #263238;padding: 4px 10px;background: #F8F8F9;text-decoration: none; border-radius: 0 0 4px 4px;" id="frame-link" href="https://aads.com/campaigns/new/?source_id=2446093&source_type=ad_unit&partner=2446093">Advertise here</a>
-          </div>
+<div style="position: absolute; z-index: 99999">
+      <input autocomplete="off" type="checkbox" id="aadsstickymqz608wm" hidden />
+      <div style="padding-top: 0; padding-bottom: 0;">
+        <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);right:0;min-width:100px">
+          <label for="aadsstickymqz608wm" style="bottom: 24px;margin:0 auto;right:0;left:0;max-width:24px; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.70); padding: 4px;z-index: 99999;cursor:pointer">
+            <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
+              <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
+            </svg>
+          </label>
+          <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;height:100%; display: flex;flex-direction: column; justify-content: center">
+                        <iframe data-aa=2446093 src=//acceptable.a-ads.com/2446093/?size=Adaptive&background_color=000000 style='border:0; padding:0; width:70%; height:70%; overflow:hidden; margin: 0 auto'></iframe>
+                    </div>
         </div>
+        <style>
+      #aadsstickymqz608wm:checked + div {
+        display: none;
+      }
+    </style>
+    </div></div>
 
 `
           }}
         />
-      </aside>
+      </div>
 
       {/* 最上方廣告 Banner */}
       <div className="flex justify-center w-full mt-6 px-4">
-        {/* Start rollercoin.com code */}
         <a href="https://rollercoin.com/?r=mn67zsfp" target="_blank" rel="noopener noreferrer">
           <img src="https://static.rollercoin.com/static/img/ref/gen2/w970h90.gif" alt="970h90" className="max-w-full h-auto rounded shadow-lg shadow-blue-500/10"/>
         </a>
-        {/* End rollercoin.com code */}
       </div>
 
-      {/* 中央主要內容區塊 (移除了原本側邊欄的 Grid 擠壓，改為乾淨的居中容器) */}
+      {/* 中央主要內容區塊 */}
       <div className="flex flex-col w-full max-w-3xl mx-auto px-4 py-8 flex-grow">
         <main className="flex-1 flex flex-col items-center">
           <h1 className="text-5xl md:text-6xl font-bold text-blue-500 mb-6 tracking-wide text-center">
             Base Faucet
           </h1>
 
-          {/* 資訊區塊 */}
           <div className="text-center space-y-2 mb-8 text-gray-300 w-full">
             <p>
-              {lang === "en" 
-                ? "We are the Base mainnet faucet!" 
-                : "我們是 Base 主網水龍頭！"}
+              {lang === "en" ? "We are the Base mainnet faucet!" : "我們是 Base 主網水龍頭！"}
             </p>
             <p className="text-blue-400 font-semibold mt-2">
               {lang === "en" 
@@ -241,14 +260,11 @@ export default function FaucetPage() {
               <p>
                 {lang === "en" ? "Claim Time:" : "領取限制:"}{" "}
                 <span className="text-gray-100">
-                  {lang === "en" 
-                    ? "1 Claim per 7 Days per IP/Wallet" 
-                    : "每個 IP 與錢包地址每 7 天限領一次"}
+                  {lang === "en" ? "1 Claim per 7 Days per IP/Wallet" : "每個 IP 與錢包地址每 7 天限領一次"}
                 </span>
               </p>
             </div>
 
-            {/* 餘額狀態區塊 */}
             {faucetInfo && (
               <div className="mt-2 p-4 bg-blue-900/10 border border-blue-500/30 rounded-lg inline-block text-left min-w-[280px]">
                 <p className="flex justify-between border-b border-blue-500/20 pb-2 mb-2">
@@ -263,7 +279,6 @@ export default function FaucetPage() {
             )}
           </div>
 
-          {/* AdBlock 警告 */}
           {hasAdBlock && (
             <div className="w-full max-w-lg mb-6 p-4 rounded-md text-sm bg-red-500/10 text-red-400 border border-red-500/30 text-center font-bold">
               {lang === "en" 
@@ -277,7 +292,6 @@ export default function FaucetPage() {
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-lg flex flex-col items-center space-y-6">
-            {/* 隱形蜜罐 Honeypot */}
             <div className="opacity-0 absolute pointer-events-none">
               <label htmlFor="username" aria-hidden="true">Username</label>
               <input
@@ -304,9 +318,7 @@ export default function FaucetPage() {
               />
               {errors.walletAddress && (
                 <p className="mt-2 text-sm text-red-500 text-center">
-                  {lang === "en"
-                    ? "Please enter a valid EVM address."
-                    : "請輸入有效的 EVM 地址。"}
+                  {lang === "en" ? "Please enter a valid EVM address." : "請輸入有效的 EVM 地址。"}
                 </p>
               )}
             </div>
@@ -332,12 +344,8 @@ export default function FaucetPage() {
               }`}
             >
               {status.type === "loading"
-                ? lang === "en"
-                  ? "Processing..."
-                  : "處理中..."
-                : lang === "en"
-                ? "Claim"
-                : "領取"}
+                ? lang === "en" ? "Processing..." : "處理中..."
+                : lang === "en" ? "Claim" : "領取"}
             </button>
 
             {status.message && (
