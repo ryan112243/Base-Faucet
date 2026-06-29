@@ -16,7 +16,6 @@ export default function FaucetPage() {
   const [initTime, setInitTime] = useState<number>(0);
   const [turnstileToken, setTurnstileToken] = useState<string>("");
   const [hCaptchaToken, setHCaptchaToken] = useState<string>("");
-  const [isHumanVerified, setIsHumanVerified] = useState<boolean>(false);
   const [faucetInfo, setFaucetInfo] = useState<{ balance: string; remaining: number } | null>(null);
   const [hasAdBlock, setHasAdBlock] = useState<boolean>(false);
   const [status, setStatus] = useState<{ type: "idle" | "loading" | "success" | "error"; message: string }>({
@@ -69,7 +68,8 @@ export default function FaucetPage() {
   const onSubmit = async (data: FormData) => {
     if (hasAdBlock) return;
 
-    if (!turnstileToken || !hCaptchaToken) {
+    if (!turnstileToken && !hCaptchaToken) {
+      // 這裡根據你的需求調整驗證判斷
       setStatus({
         type: "error",
         message: lang === "en" ? "Please complete all captcha verifications." : "請完成所有驗證碼。",
@@ -122,6 +122,45 @@ export default function FaucetPage() {
   return (
     <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col font-sans relative">
       
+      {/* --- Faucet 專用 A-Ads 廣告 --- */}
+      <div dangerouslySetInnerHTML={{ __html: `
+        <!-- BEGIN AADS AD UNIT 2446098 -->
+        <div style="position: absolute; z-index: 99999">
+          <input autocomplete="off" type="checkbox" id="aadsstickymqz8vja2" hidden />
+          <div style="padding-top: 0; padding-bottom: 0;">
+            <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);left:0;min-width:100px">
+              <label for="aadsstickymqz8vja2" style="bottom: 24px;margin:0 auto;right:0;left:0;max-width:24px; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.70); padding: 4px;z-index: 99999;cursor:pointer">
+                <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
+                  <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
+                </svg>
+              </label>
+              <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;height:100%; display: flex;flex-direction: column; justify-content: center">
+                <iframe data-aa=2446098 src=//acceptable.a-ads.com/2446098/?size=Adaptive&background_color=000000 style='border:0; padding:0; width:70%; height:70%; overflow:hidden; margin: 0 auto'></iframe>
+              </div>
+            </div>
+            <style>#aadsstickymqz8vja2:checked + div { display: none; }</style>
+          </div>
+        </div>
+
+        <!-- BEGIN AADS AD UNIT 2446099 -->
+        <div style="position: absolute; z-index: 99999">
+          <input autocomplete="off" type="checkbox" id="aadsstickymqz8xal2" hidden />
+          <div style="padding-top: 0; padding-bottom: 0;">
+            <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);right:0;min-width:100px">
+              <label for="aadsstickymqz8xal2" style="bottom: 24px;margin:0 auto;right:0;left:0;max-width:24px; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.70); padding: 4px;z-index: 99999;cursor:pointer">
+                <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
+                  <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
+                </svg>
+              </label>
+              <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;height:100%; display: flex;flex-direction: column; justify-content: center">
+                <iframe data-aa=2446099 src=//acceptable.a-ads.com/2446099/?size=Adaptive&background_color=000000 style='border:0; padding:0; width:70%; height:70%; overflow:hidden; margin: 0 auto'></iframe>
+              </div>
+            </div>
+            <style>#aadsstickymqz8xal2:checked + div { display: none; }</style>
+          </div>
+        </div>
+      `}} />
+
       {/* 頂部導覽列 */}
       <nav className="relative z-[100000] flex items-center justify-between bg-[#1a1e29] border-b border-gray-800">
         <div className="flex">
@@ -244,7 +283,7 @@ export default function FaucetPage() {
         </main>
       </div>
 
-      {/* 首頁底部高收益橫幅廣告位置 (已移除舊灰框) */}
+      {/* 底部 Adsterra 預留位 (未來填入代碼即可) */}
       <div className="w-full max-w-3xl mx-auto px-4 pb-12 flex flex-col items-center gap-6">
         <div className="w-full flex justify-center">
           <div
@@ -256,16 +295,7 @@ export default function FaucetPage() {
             }}
           />
         </div>
-
-        {/* 廣告招租 */}
-        <div className="w-full bg-[#1a1e29] border border-blue-500/10 rounded-lg p-6 flex flex-col items-center text-center">
-          <h2 className="text-xl font-bold text-blue-400 mb-2">{lang === "en" ? "Advertise Here" : "招租廣告版位"}</h2>
-          <a href="mailto:你的Gmail帳號@gmail.com" className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-full font-medium transition">
-            📧 你的Gmail帳號@gmail.com
-          </a>
-        </div>
       </div>
-
     </div>
   );
 }
