@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Base Faucet",
   description: "Get 0.00005 Base ETH for 0 Gas Fee to get started.",
+  // 在這裡加入驗證碼
+  verification: {
+    google: "yKe_X69N0lsjYn8970IolBch-ICNpe3O3XTdkyqNr7E",
+  },
 };
 
 export default function RootLayout({
