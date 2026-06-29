@@ -5,6 +5,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
+import Script from "next/script"; // 為了載入廣告腳本
 
 type FormData = {
   walletAddress: string;
@@ -69,7 +70,6 @@ export default function FaucetPage() {
     if (hasAdBlock) return;
 
     if (!turnstileToken && !hCaptchaToken) {
-      // 這裡根據你的需求調整驗證判斷
       setStatus({
         type: "error",
         message: lang === "en" ? "Please complete all captcha verifications." : "請完成所有驗證碼。",
@@ -122,9 +122,12 @@ export default function FaucetPage() {
   return (
     <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col font-sans relative">
       
+      {/* --- Adsterra 廣告腳本 --- */}
+      <Script src="https://pl30126738.effectivecpmnetwork.com/ca/2f/d7/ca2fd7301eb71fa1a4a9cd38a2e875d9.js" strategy="afterInteractive" />
+      <Script src="https://pl30126739.effectivecpmnetwork.com/57/d4/23/57d4234a5a64fee8d0b62c5126ececce.js" strategy="afterInteractive" />
+
       {/* --- Faucet 專用 A-Ads 廣告 --- */}
       <div dangerouslySetInnerHTML={{ __html: `
-        <!-- BEGIN AADS AD UNIT 2446098 -->
         <div style="position: absolute; z-index: 99999">
           <input autocomplete="off" type="checkbox" id="aadsstickymqz8vja2" hidden />
           <div style="padding-top: 0; padding-bottom: 0;">
@@ -142,7 +145,6 @@ export default function FaucetPage() {
           </div>
         </div>
 
-        <!-- BEGIN AADS AD UNIT 2446099 -->
         <div style="position: absolute; z-index: 99999">
           <input autocomplete="off" type="checkbox" id="aadsstickymqz8xal2" hidden />
           <div style="padding-top: 0; padding-bottom: 0;">
@@ -283,14 +285,22 @@ export default function FaucetPage() {
         </main>
       </div>
 
-      {/* 底部 Adsterra 預留位 (未來填入代碼即可) */}
+      {/* 底部 Adsterra 橫幅廣告 */}
       <div className="w-full max-w-3xl mx-auto px-4 pb-12 flex flex-col items-center gap-6">
         <div className="w-full flex justify-center">
           <div
             dangerouslySetInnerHTML={{
               __html: `
-                <!-- 填入你申請的 Adsterra 高收益橫幅廣告 JavaScript 代碼 -->
-                <div style="min-height:90px; width:100%; display:flex; justify-content:center;"></div>
+                <script>
+                  atOptions = {
+                    'key' : 'e3e91465d5025ecf8016d35a4e7cb47e',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                  };
+                </script>
+                <script src="https://www.highperformanceformat.com/e3e91465d5025ecf8016d35a4e7cb47e/invoke.js"></script>
               `
             }}
           />
