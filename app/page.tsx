@@ -134,8 +134,8 @@ export default function FaucetPage() {
 
   return (
     <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col font-sans">
-      {/* 頂部導覽列 */}
-      <nav className="flex items-center justify-between bg-[#1a1e29] border-b border-gray-800">
+      {/* 頂部導覽列（修正：加上 relative z-[100000] 確保 Mining 點擊不被廣告遮擋） */}
+      <nav className="relative z-[100000] flex items-center justify-between bg-[#1a1e29] border-b border-gray-800">
         <div className="flex">
           <Link 
             href="/" 
@@ -178,8 +178,8 @@ export default function FaucetPage() {
       {/* 包含左右廣告的 Grid 佈局 */}
       <div className="flex flex-col md:flex-row w-full max-w-7xl mx-auto px-4 py-8 gap-6 flex-grow">
         
-        {/* 左側廣告 (已替換為 A-Ads 黏性廣告 2446091) */}
-        <aside className="hidden md:flex w-[160px] lg:w-[300px] bg-[#1a1e29] border border-gray-800 rounded-lg items-center justify-center text-gray-600 text-sm overflow-hidden">
+        {/* 左側廣告 (修正：移除了 bg-[#1a1e29] 與邊框，使其完全透明不突兀) */}
+        <aside className="hidden md:flex w-[160px] lg:w-[300px] items-center justify-center text-gray-600 text-sm overflow-hidden">
           <div
             dangerouslySetInnerHTML={{
               __html: `
@@ -351,8 +351,8 @@ export default function FaucetPage() {
           </form>
         </main>
 
-        {/* 右側廣告 (已替換為 A-Ads 黏性廣告 2446093) */}
-        <aside className="hidden md:flex w-[160px] lg:w-[300px] bg-[#1a1e29] border border-gray-800 rounded-lg items-center justify-center text-gray-600 text-sm overflow-hidden">
+        {/* 右側廣告 (修正：移除了 bg-[#1a1e29] 與邊框，使其完全透明不突兀) */}
+        <aside className="hidden md:flex w-[160px] lg:w-[300px] items-center justify-center text-gray-600 text-sm overflow-hidden">
           <div
             dangerouslySetInnerHTML={{
               __html: `
