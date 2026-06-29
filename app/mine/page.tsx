@@ -42,34 +42,6 @@ export default function MinePage() {
     }
   }, []);
 
-  // 為了方便排版預覽，暫時停用全站 Turnstile 驗證閘道
-  /*
-  if (!isHumanVerified) {
-    return (
-      <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col items-center justify-center font-sans">
-        <h1 className="text-3xl font-bold text-[#c026d3] mb-8">
-          {lang === "en" ? "Verifying connection..." : "連線驗證中..."}
-        </h1>
-        <Turnstile
-          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
-          onSuccess={() => {
-            setIsHumanVerified(true);
-          }}
-          options={{
-            theme: "dark",
-          }}
-        />
-        <p className="mt-6 text-gray-400 max-w-md text-center">
-          {lang === "en" 
-            ? "Please verify you are human to access the Base Faucet." 
-            : "請完成真人驗證以進入 Base 水龍頭網站。"}
-        </p>
-      </div>
-    );
-  }
-  */
-
-  // 暫時將驗證狀態設為 true 以方便預覽
   useEffect(() => {
     setIsHumanVerified(true);
   }, []);
@@ -110,19 +82,21 @@ export default function MinePage() {
 
       {/* 最上方廣告 Banner */}
       <div className="flex justify-center w-full mt-6 px-4">
-        {/* Start rollercoin.com code */}
         <a href="https://rollercoin.com/?r=mn67zsfp" target="_blank" rel="noopener noreferrer">
           <img src="https://static.rollercoin.com/static/img/ref/gen2/w970h90.gif" alt="970h90" className="max-w-full h-auto rounded shadow-lg shadow-blue-500/10"/>
         </a>
-        {/* End rollercoin.com code */}
       </div>
 
       {/* 包含左右廣告的 Grid 佈局 */}
       <div className="flex flex-col md:flex-row w-full max-w-7xl mx-auto px-4 py-8 gap-6 flex-grow">
         
         {/* 左側廣告 */}
-        <aside className="hidden md:flex w-[160px] lg:w-[300px] bg-[#1a1e29] border border-gray-800 rounded-lg items-center justify-center text-gray-600 text-sm">
-          {lang === "en" ? "Left Ad Space" : "左側廣告版位"}
+        <aside className="hidden md:flex w-[160px] lg:w-[300px] bg-[#1a1e29] border border-gray-800 rounded-lg items-center justify-center overflow-hidden">
+          <iframe 
+            data-aa="2446091" 
+            src="//acceptable.a-ads.com/2446091/?size=Adaptive&background_color=000000" 
+            style={{ border: "0", padding: "0", width: "100%", height: "100%", overflow: "hidden" }}
+          />
         </aside>
 
         {/* 主要內容 */}
@@ -151,16 +125,13 @@ export default function MinePage() {
         </main>
 
         {/* 右側廣告 */}
-        <aside className="hidden md:flex w-[160px] lg:w-[300px] bg-[#1a1e29] border border-gray-800 rounded-lg items-center justify-center text-gray-600 text-sm">
-          {lang === "en" ? "Right Ad Space" : "右側廣告版位"}
+        <aside className="hidden md:flex w-[160px] lg:w-[300px] bg-[#1a1e29] border border-gray-800 rounded-lg items-center justify-center overflow-hidden">
+          <iframe 
+            data-aa="2446093" 
+            src="//acceptable.a-ads.com/2446093/?size=Adaptive&background_color=000000" 
+            style={{ border: "0", padding: "0", width: "100%", height: "100%", overflow: "hidden" }}
+          />
         </aside>
-      </div>
-
-      {/* 下方廣告 */}
-      <div className="w-full max-w-7xl mx-auto px-4 pb-12">
-        <div className="w-full bg-[#1a1e29] border border-gray-800 rounded-lg flex items-center justify-center text-gray-600 text-sm h-32">
-          {lang === "en" ? "Bottom Ad Space" : "下方廣告版位"}
-        </div>
       </div>
     </div>
   );
