@@ -8,7 +8,7 @@ import Link from "next/link";
 
 type FormData = {
   walletAddress: string;
-  username: string; // Honeypot
+  username: string;
 };
 
 export default function FaucetPage() {
@@ -100,10 +100,7 @@ export default function FaucetPage() {
 
       setStatus({
         type: "success",
-        message:
-          lang === "en"
-            ? `Success! TxHash: ${result.txHash}`
-            : `成功！交易哈希: ${result.txHash}`,
+        message: lang === "en" ? `Success! TxHash: ${result.txHash}` : `成功！交易哈希: ${result.txHash}`,
       });
       
       if (faucetInfo) {
@@ -121,11 +118,6 @@ export default function FaucetPage() {
       setStatus({ type: "error", message: err.message });
     }
   };
-
-  useEffect(() => {
-    setIsHumanVerified(true);
-    setTurnstileToken("dummy-token-for-dev");
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col font-sans relative">
@@ -162,62 +154,6 @@ export default function FaucetPage() {
         </div>
       </nav>
 
-      {/* 1. 左側 A-Ads 廣告 (徹底用強大 CSS 暴擊抹除 X 和黑色半透明背景) */}
-      <div className="hidden xl:block">
-        <div
-          dangerouslySetInnerHTML={{
-            __html: `
-<div style="position: absolute; z-index: 99999">
-      <input autocomplete="off" type="checkbox" id="aadsstickymqz5zjft" hidden />
-      <div style="padding-top: 0; padding-bottom: 0;">
-        <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);left:0;min-width:100px; background:transparent !important; box-shadow:none !important;">
-          
-          {/* 用不顯示強制幹掉 label 關閉按鈕 */}
-          <label for="aadsstickymqz5zjft" style="display: none !important;"></label>
-          
-          <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;height:100%; display: flex;flex-direction: column; justify-content: center">
-              <iframe data-aa=2446091 src=//acceptable.a-ads.com/2446091/?size=Adaptive&background_color=000000 style='border:0; padding:0; width:70%; height:70%; overflow:hidden; margin: 0 auto'></iframe>
-          </div>
-        </div>
-        <style>
-          #aadsstickymqz5zjft:checked + div { display: none; }
-          /* 強制覆蓋任何可能產生的半透明黑底和黑色方塊 */
-          div[style*="fixed"] { background: transparent !important; background-color: transparent !important; box-shadow: none !important; }
-        </style>
-    </div></div>
-`
-          }}
-        />
-      </div>
-
-      {/* 2. 右側 A-Ads 廣告 (同樣暴擊抹除 X 和黑底) */}
-      <div className="hidden xl:block">
-        <div
-          dangerouslySetInnerHTML={{
-            __html: `
-<div style="position: absolute; z-index: 99999">
-      <input autocomplete="off" type="checkbox" id="aadsstickymqz608wm" hidden />
-      <div style="padding-top: 0; padding-bottom: 0;">
-        <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);right:0;min-width:100px; background:transparent !important; box-shadow:none !important;">
-          
-          {/* 用不顯示強制幹掉 label 關閉按鈕 */}
-          <label for="aadsstickymqz608wm" style="display: none !important;"></label>
-          
-          <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;height:100%; display: flex;flex-direction: column; justify-content: center">
-              <iframe data-aa=2446093 src=//acceptable.a-ads.com/2446093/?size=Adaptive&background_color=000000 style='border:0; padding:0; width:70%; height:70%; overflow:hidden; margin: 0 auto'></iframe>
-          </div>
-        </div>
-        <style>
-          #aadsstickymqz608wm:checked + div { display: none; }
-          /* 強制覆蓋任何可能產生的半透明黑底和黑色方塊 */
-          div[style*="fixed"] { background: transparent !important; background-color: transparent !important; box-shadow: none !important; }
-        </style>
-    </div></div>
-`
-          }}
-        />
-      </div>
-
       {/* 最上方廣告 Banner */}
       <div className="flex justify-center w-full mt-6 px-4">
         <a href="https://rollercoin.com/?r=mn67zsfp" target="_blank" rel="noopener noreferrer">
@@ -228,36 +164,20 @@ export default function FaucetPage() {
       {/* 中央主要內容區塊 */}
       <div className="flex flex-col w-full max-w-3xl mx-auto px-4 py-8 flex-grow">
         <main className="flex-1 flex flex-col items-center">
-          {/* 名稱正式更改為 Base Mainnet Faucet */}
           <h1 className="text-5xl md:text-6xl font-bold text-blue-500 mb-6 tracking-wide text-center">
             Base Mainnet Faucet
           </h1>
 
           <div className="text-center space-y-2 mb-8 text-gray-300 w-full">
-            <p>
-              {lang === "en" ? "We are the Base mainnet faucet!" : "我們是 Base 主網水龍頭！"}
-            </p>
+            <p>{lang === "en" ? "We are the Base mainnet faucet!" : "我們是 Base 主網水龍頭！"}</p>
             <p className="text-blue-400 font-semibold mt-2">
-              {lang === "en" 
-                ? "This faucet is dedicated to helping new users who don't have gas fees." 
-                : "此水龍頭致力於幫助沒有手續費的新手。"}
+              {lang === "en" ? "This faucet is dedicated to helping new users who don't have gas fees." : "此水龍頭致力於幫助沒有手續費的新手。"}
             </p>
             
             <div className="py-4">
-              <p>
-                {lang === "en" ? "Donation Address:" : "打賞地址:"}{" "}
-                <span className="text-gray-100 font-mono text-sm md:text-base break-all">0x6998C387c2cdAeC57AE48167e2d8CDADA666D178</span>
-              </p>
-              <p>
-                {lang === "en" ? "Reward Amount:" : "獎勵數量:"}{" "}
-                <span className="text-gray-100">0.000001 ETH</span>
-              </p>
-              <p>
-                {lang === "en" ? "Claim Time:" : "領取限制:"}{" "}
-                <span className="text-gray-100">
-                  {lang === "en" ? "1 Claim per 7 Days per IP/Wallet" : "每個 IP 與錢包地址每 7 天限領一次"}
-                </span>
-              </p>
+              <p>{lang === "en" ? "Donation Address:" : "打賞地址:"} <span className="text-gray-100 font-mono text-sm md:text-base break-all">0x6998C387c2cdAeC57AE48167e2d8CDADA666D178</span></p>
+              <p>{lang === "en" ? "Reward Amount:" : "獎勵數量:"} <span className="text-gray-100">0.000001 ETH</span></p>
+              <p>{lang === "en" ? "Claim Time:" : "領取限制:"} <span className="text-gray-100">{lang === "en" ? "1 Claim per 7 Days per IP/Wallet" : "每個 IP 與錢包地址每 7 天限領一次"}</span></p>
             </div>
 
             {faucetInfo && (
@@ -276,26 +196,16 @@ export default function FaucetPage() {
 
           {hasAdBlock && (
             <div className="w-full max-w-lg mb-6 p-4 rounded-md text-sm bg-red-500/10 text-red-400 border border-red-500/30 text-center font-bold">
-              {lang === "en" 
-                ? "Ad-blocker detected! Please disable your ad-blocker to claim." 
-                : "偵測到廣告攔截器！請關閉廣告攔截器後才能領取水龍頭。"}
+              {lang === "en" ? "Ad-blocker detected! Please disable your ad-blocker to claim." : "偵測到廣告攔截器！請關閉廣告攔截器後才能領取水龍頭。"}
             </div>
           )}
 
-          <p className="mb-4 text-gray-300">
-            {lang === "en" ? "Enter your wallet address here:" : "請在此輸入您的錢包地址："}
-          </p>
+          <p className="mb-4 text-gray-300">{lang === "en" ? "Enter your wallet address here:" : "請在此輸入您的錢包地址："}</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-lg flex flex-col items-center space-y-6">
             <div className="opacity-0 absolute pointer-events-none">
               <label htmlFor="username" aria-hidden="true">Username</label>
-              <input
-                id="username"
-                type="text"
-                tabIndex={-1}
-                autoComplete="off"
-                {...register("username")}
-              />
+              <input id="username" type="text" tabIndex={-1} autoComplete="off" {...register("username")} />
             </div>
 
             <div className="w-full">
@@ -303,56 +213,30 @@ export default function FaucetPage() {
                 type="text"
                 disabled={hasAdBlock}
                 placeholder={lang === "en" ? "Wallet address" : "錢包地址"}
-                className={`w-full bg-transparent border-2 ${
-                  errors.walletAddress ? "border-red-500" : "border-blue-500"
-                } rounded-md px-4 py-3 text-white focus:outline-none focus:border-blue-400 transition ${hasAdBlock ? 'opacity-50 cursor-not-allowed' : ''}`}
-                {...register("walletAddress", {
-                  required: true,
-                  pattern: /^0x[a-fA-F0-9]{40}$/,
-                })}
+                className={`w-full bg-transparent border-2 ${errors.walletAddress ? "border-red-500" : "border-blue-500"} rounded-md px-4 py-3 text-white focus:outline-none focus:border-blue-400 transition`}
+                {...register("walletAddress", { required: true, pattern: /^0x[a-fA-F0-9]{40}$/ })}
               />
-              {errors.walletAddress && (
-                <p className="mt-2 text-sm text-red-500 text-center">
-                  {lang === "en" ? "Please enter a valid EVM address." : "請輸入有效的 EVM 地址。"}
-                </p>
-              )}
             </div>
 
             <div className="flex justify-center w-full">
-              <div className="mx-auto">
-                <HCaptcha
-                  sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001"}
-                  onVerify={(token) => setHCaptchaToken(token)}
-                  ref={hCaptchaRef}
-                  theme="dark"
-                />
-              </div>
+              <HCaptcha
+                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001"}
+                onVerify={(token) => setHCaptchaToken(token)}
+                ref={hCaptchaRef}
+                theme="dark"
+              />
             </div>
 
             <button
               type="submit"
               disabled={status.type === "loading" || hasAdBlock}
-              className={`w-full py-3 rounded-md font-bold transition text-white ${
-                status.type === "loading" || hasAdBlock
-                  ? "bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-500"
-              }`}
+              className={`w-full py-3 rounded-md font-bold transition text-white ${status.type === "loading" || hasAdBlock ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-500"}`}
             >
-              {status.type === "loading"
-                ? lang === "en" ? "Processing..." : "處理中..."
-                : lang === "en" ? "Claim" : "領取"}
+              {status.type === "loading" ? (lang === "en" ? "Processing..." : "處理中...") : (lang === "en" ? "Claim" : "領取")}
             </button>
 
             {status.message && (
-              <div
-                className={`w-full p-4 rounded-md text-sm break-all text-center ${
-                  status.type === "error"
-                    ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                    : status.type === "success"
-                    ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                    : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                }`}
-              >
+              <div className={`w-full p-4 rounded-md text-sm break-all text-center ${status.type === "error" ? "bg-red-500/10 text-red-400" : "bg-green-500/10 text-green-400"}`}>
                 {status.message}
               </div>
             )}
@@ -360,34 +244,24 @@ export default function FaucetPage() {
         </main>
       </div>
 
-      {/* 底部全新的第三個廣告版位（已移除了 Bottom Ad Space 與灰框，改成純淨的 A-Ads 容器） */}
+      {/* 首頁底部高收益橫幅廣告位置 (已移除舊灰框) */}
       <div className="w-full max-w-3xl mx-auto px-4 pb-12 flex flex-col items-center gap-6">
         <div className="w-full flex justify-center">
           <div
             dangerouslySetInnerHTML={{
               __html: `
+                <!-- 填入你申請的 Adsterra 高收益橫幅廣告 JavaScript 代碼 -->
                 <div style="min-height:90px; width:100%; display:flex; justify-content:center;"></div>
               `
             }}
           />
         </div>
 
-        {/* 廣告招租與 Gmail 聯繫資訊 */}
+        {/* 廣告招租 */}
         <div className="w-full bg-[#1a1e29] border border-blue-500/10 rounded-lg p-6 flex flex-col items-center text-center">
-          <h2 className="text-xl font-bold text-blue-400 mb-2">
-            {lang === "en" ? "Advertise Here" : "招租廣告版位"}
-          </h2>
-          <p className="text-gray-400 text-sm mb-4">
-            {lang === "en" 
-              ? "Interested in advertising on this faucet? Contact us via email." 
-              : "對在本站投放廣告感興趣嗎？歡迎聯繫我們洽談版位合作。"}
-          </p>
-          <a 
-            href="mailto:你的Gmail帳號@gmail.com" 
-            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-full font-medium transition shadow-lg shadow-blue-600/20"
-          >
-            <span>📧</span>
-            <span>你的Gmail帳號@gmail.com</span>
+          <h2 className="text-xl font-bold text-blue-400 mb-2">{lang === "en" ? "Advertise Here" : "招租廣告版位"}</h2>
+          <a href="mailto:你的Gmail帳號@gmail.com" className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-full font-medium transition">
+            📧 你的Gmail帳號@gmail.com
           </a>
         </div>
       </div>
