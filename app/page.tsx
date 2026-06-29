@@ -133,8 +133,9 @@ export default function FaucetPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col font-sans">
-      {/* 頂部導覽列（修正：加上 relative z-[100000] 確保 Mining 點擊不被廣告遮擋） */}
+    <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col font-sans relative">
+      
+      {/* 頂部導覽列 (z-[100000] 最高層級，確保按鈕能精準點擊不被遮擋) */}
       <nav className="relative z-[100000] flex items-center justify-between bg-[#1a1e29] border-b border-gray-800">
         <div className="flex">
           <Link 
@@ -166,6 +167,39 @@ export default function FaucetPage() {
         </div>
       </nav>
 
+      {/* 1. 左側固定廣告 (Fixed Layout - 在大螢幕下靠左固定) */}
+      <aside className="hidden xl:block fixed left-4 top-32 w-[160px] z-50">
+        <div
+          dangerouslySetInnerHTML={{
+            __html: `
+<div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;">
+          <iframe data-aa='2446091' src='//acceptable.a-ads.com/2446091/?size=Adaptive&background_color=000000&title_color=ffffff'
+                            style='border:0; padding:0; width:100%; height:auto; overflow:hidden;display: block;margin: auto'></iframe>
+        </div>
+
+`
+          }}
+        />
+      </aside>
+
+      {/* 2. 右側固定廣告 (Fixed Layout - 在大螢幕下靠右固定) */}
+      <aside className="hidden xl:block fixed right-4 top-32 w-[160px] z-50">
+        <div
+          dangerouslySetInnerHTML={{
+            __html: `
+<div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;">
+          <iframe data-aa='2446093' src='//acceptable.a-ads.com/2446093/?size=Adaptive&background_color=000000'
+                            style='border:0; padding:0; width:100%; height:auto; overflow:hidden;display: block;margin: auto'></iframe>
+          <div style="width: 100%;margin:auto;position: absolute;left: 0;right: 0">
+            <a target="_blank" style="display:inline-block;font-size: 13px;color: #263238;padding: 4px 10px;background: #F8F8F9;text-decoration: none; border-radius: 0 0 4px 4px;" id="frame-link" href="https://aads.com/campaigns/new/?source_id=2446093&source_type=ad_unit&partner=2446093">Advertise here</a>
+          </div>
+        </div>
+
+`
+          }}
+        />
+      </aside>
+
       {/* 最上方廣告 Banner */}
       <div className="flex justify-center w-full mt-6 px-4">
         {/* Start rollercoin.com code */}
@@ -175,39 +209,8 @@ export default function FaucetPage() {
         {/* End rollercoin.com code */}
       </div>
 
-      {/* 包含左右廣告的 Grid 佈局 */}
-      <div className="flex flex-col md:flex-row w-full max-w-7xl mx-auto px-4 py-8 gap-6 flex-grow">
-        
-        {/* 左側廣告 (修正：移除了 bg-[#1a1e29] 與邊框，使其完全透明不突兀) */}
-        <aside className="hidden md:flex w-[160px] lg:w-[300px] items-center justify-center text-gray-600 text-sm overflow-hidden">
-          <div
-            dangerouslySetInnerHTML={{
-              __html: `
-<div style="position: absolute; z-index: 99999">
-      <input autocomplete="off" type="checkbox" id="aadsstickymqz3a94f" hidden />
-      <div style="padding-top: 0; padding-bottom: 0;">
-        <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);left:0;min-width:100px">
-          <label for="aadsstickymqz3a94f" style="bottom: 24px;margin:0 auto;right:0;left:0;max-width:24px; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.70); padding: 4px;z-index: 99999;cursor:pointer">
-            <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
-              <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
-            </svg>
-          </label>
-          <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;height:100%; display: flex;flex-direction: column; justify-content: center">
-                        <iframe data-aa=2446091 src=//acceptable.a-ads.com/2446091/?size=Adaptive&background_color=000000&title_color=0027f2&title_hover_color=ffffff&text_color=NaNNaNNaN style='border:0; padding:0; width:70%; height:70%; overflow:hidden; margin: 0 auto'></iframe>
-                    </div>
-        </div>
-        <style>
-      #aadsstickymqz3a94f:checked + div {
-        display: none;
-      }
-    </style>
-    </div></div>
-`
-            }}
-          />
-        </aside>
-
-        {/* 中央主要內容 */}
+      {/* 中央主要內容區塊 (移除了原本側邊欄的 Grid 擠壓，改為乾淨的居中容器) */}
+      <div className="flex flex-col w-full max-w-3xl mx-auto px-4 py-8 flex-grow">
         <main className="flex-1 flex flex-col items-center">
           <h1 className="text-5xl md:text-6xl font-bold text-blue-500 mb-6 tracking-wide text-center">
             Base Faucet
@@ -309,12 +312,14 @@ export default function FaucetPage() {
             </div>
 
             <div className="flex justify-center w-full">
-              <HCaptcha
-                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001"}
-                onVerify={(token) => setHCaptchaToken(token)}
-                ref={hCaptchaRef}
-                theme="dark"
-              />
+              <div className="mx-auto">
+                <HCaptcha
+                  sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001"}
+                  onVerify={(token) => setHCaptchaToken(token)}
+                  ref={hCaptchaRef}
+                  theme="dark"
+                />
+              </div>
             </div>
 
             <button
@@ -350,39 +355,10 @@ export default function FaucetPage() {
             )}
           </form>
         </main>
-
-        {/* 右側廣告 (修正：移除了 bg-[#1a1e29] 與邊框，使其完全透明不突兀) */}
-        <aside className="hidden md:flex w-[160px] lg:w-[300px] items-center justify-center text-gray-600 text-sm overflow-hidden">
-          <div
-            dangerouslySetInnerHTML={{
-              __html: `
-<div style="position: absolute; z-index: 99999">
-      <input autocomplete="off" type="checkbox" id="aadsstickymqz3rgu0" hidden />
-      <div style="padding-top: 0; padding-bottom: 0;">
-        <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);right:0;min-width:100px">
-          <label for="aadsstickymqz3rgu0" style="bottom: 24px;margin:0 auto;right:0;left:0;max-width:24px; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.70); padding: 4px;z-index: 99999;cursor:pointer">
-            <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
-              <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
-            </svg>
-          </label>
-          <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;height:100%; display: flex;flex-direction: column; justify-content: center">
-                        <iframe data-aa=2446093 src=//acceptable.a-ads.com/2446093/?size=Adaptive style='border:0; padding:0; width:70%; height:70%; overflow:hidden; margin: 0 auto'></iframe>
-                    </div>
-        </div>
-        <style>
-      #aadsstickymqz3rgu0:checked + div {
-        display: none;
-      }
-    </style>
-    </div></div>
-`
-            }}
-          />
-        </aside>
       </div>
 
       {/* 下方廣告 */}
-      <div className="w-full max-w-7xl mx-auto px-4 pb-12">
+      <div className="w-full max-w-3xl mx-auto px-4 pb-12">
         <div className="w-full bg-[#1a1e29] border border-gray-800 rounded-lg flex items-center justify-center text-gray-600 text-sm h-32">
           {lang === "en" ? "Bottom Ad Space" : "下方廣告版位"}
         </div>
