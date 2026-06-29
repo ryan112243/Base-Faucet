@@ -206,10 +206,35 @@ export default function FaucetPage() {
       {/* 包含左右廣告的 Grid 佈局 */}
       <div className="flex flex-col md:flex-row w-full max-w-7xl mx-auto px-4 py-8 gap-6 flex-grow">
         
-        {/* 左側廣告 */}
-        <aside className="hidden md:flex w-[160px] lg:w-[300px] bg-[#1a1e29] border border-gray-800 rounded-lg items-center justify-center text-gray-600 text-sm">
-          {lang === "en" ? "Left Ad Space" : "左側廣告版位"}
-        </aside>
+        {/* 側邊廣告版位 */}
+<aside 
+  className="hidden md:flex w-[160px] lg:w-[300px] bg-[#1a1e29] border border-gray-800 rounded-lg items-center justify-center text-gray-600 text-sm overflow-hidden"
+>
+  <div
+    dangerouslySetInnerHTML={{
+      __html: `
+        <div style="position: absolute; z-index: 99999">
+          <input autocomplete="off" type="checkbox" id="aadsstickymqz3a94f" hidden />
+          <div style="padding-top: 0; padding-bottom: 0;">
+            <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);left:0;min-width:100px">
+              <label for="aadsstickymqz3a94f" style="bottom: 24px;margin:0 auto;right:0;left:0;max-width:24px; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.70); padding: 4px;z-index: 99999;cursor:pointer">
+                <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
+                  <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
+                </svg>
+              </label>
+              <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;height:100%; display: flex;flex-direction: column; justify-content: center">
+                <iframe data-aa=2446091 src=//acceptable.a-ads.com/2446091/?size=Adaptive&background_color=000000&title_color=0027f2&title_hover_color=ffffff&text_color=NaNNaNNaN style='border:0; padding:0; width:70%; height:70%; overflow:hidden; margin: 0 auto'></iframe>
+              </div>
+            </div>
+            <style>
+              #aadsstickymqz3a94f:checked + div { display: none; }
+            </style>
+          </div>
+        </div>
+        `
+    }}
+  />
+</aside>
 
         {/* 中央主要內容 */}
         <main className="flex-1 flex flex-col items-center">
