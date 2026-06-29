@@ -26,7 +26,6 @@ export default function FaucetPage() {
   });
   
   const hCaptchaRef = useRef<HCaptcha>(null);
-  const bannerRef = useRef<HTMLDivElement>(null);
 
   const {
     register,
@@ -34,6 +33,7 @@ export default function FaucetPage() {
     formState: { errors },
   } = useForm<FormData>();
 
+  // 1. 初始化資料抓取
   useEffect(() => {
     const savedLang = localStorage.getItem("lang") as "en" | "zh" | null;
     if (savedLang) {
@@ -49,7 +49,10 @@ export default function FaucetPage() {
         }
       })
       .catch(err => console.error("Failed to fetch faucet info:", err));
+  }, []);
 
+  // 2. AdBlocker 偵測邏輯
+  useEffect(() => {
     const checkAdBlock = () => {
       const ad = document.createElement('div');
       ad.className = 'adsbox';
@@ -70,23 +73,6 @@ export default function FaucetPage() {
       }, 500);
     };
     checkAdBlock();
-  }, []);
-
-  useEffect(() => {
-    if (bannerRef.current) {
-        (window as any).atOptions = {
-            'key' : 'e3e91465d5025ecf8016d35a4e7cb47e',
-            'format' : 'iframe',
-            'height' : 90,
-            'width' : 728,
-            'params' : {}
-        };
-        const script = document.createElement('script');
-        script.src = 'https://www.highperformanceformat.com/e3e91465d5025ecf8016d35a4e7cb47e/invoke.js';
-        script.async = true;
-        bannerRef.current.innerHTML = '';
-        bannerRef.current.appendChild(script);
-    }
   }, []);
 
   const onSubmit = async (data: FormData) => {
@@ -142,6 +128,7 @@ export default function FaucetPage() {
     }
   };
 
+  // 若偵測到 AdBlocker，強制蓋版
   if (!isCheckingAdBlock && hasAdBlock) {
     return (
       <div className="min-h-screen bg-[#11141c] flex items-center justify-center text-center p-6">
@@ -162,9 +149,12 @@ export default function FaucetPage() {
 
   return (
     <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col font-sans relative">
+      
+      {/* --- Adsterra 廣告腳本 --- */}
       <Script src="https://pl30126738.effectivecpmnetwork.com/ca/2f/d7/ca2fd7301eb71fa1a4a9cd38a2e875d9.js" strategy="afterInteractive" />
       <Script src="https://pl30126739.effectivecpmnetwork.com/57/d4/23/57d4234a5a64fee8d0b62c5126ececce.js" strategy="afterInteractive" />
 
+      {/* --- Faucet 專用 A-Ads --- */}
       <div dangerouslySetInnerHTML={{ __html: `
         <div style="position: absolute; z-index: 99999">
           <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);left:0;min-width:100px">
@@ -173,6 +163,7 @@ export default function FaucetPage() {
             </div>
           </div>
         </div>
+
         <div style="position: absolute; z-index: 99999">
           <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);right:0;min-width:100px">
             <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;height:100%; display: flex;flex-direction: column; justify-content: center">
@@ -182,6 +173,7 @@ export default function FaucetPage() {
         </div>
       `}} />
 
+      {/* 頂部導覽列 */}
       <nav className="relative z-[100000] flex items-center justify-between bg-[#1a1e29] border-b border-gray-800">
         <div className="flex">
           <Link href="/" prefetch={false} className="px-6 py-4 bg-blue-600 text-white font-semibold transition">Faucet</Link>
@@ -194,19 +186,22 @@ export default function FaucetPage() {
         </div>
       </nav>
 
+      {/* 最上方廣告 Banner */}
       <div className="flex justify-center w-full mt-6 px-4">
         <a href="https://rollercoin.com/?r=mn67zsfp" target="_blank" rel="noopener noreferrer">
           <img src="https://static.rollercoin.com/static/img/ref/gen2/w970h90.gif" alt="970h90" className="max-w-full h-auto rounded shadow-lg shadow-blue-500/10"/>
         </a>
       </div>
 
+      {/* 中央主要內容區塊 */}
       <div className="flex flex-col w-full max-w-3xl mx-auto px-4 py-8 flex-grow">
         <main className="flex-1 flex flex-col items-center">
           <h1 className="text-5xl md:text-6xl font-bold text-blue-500 mb-6 tracking-wide text-center">Base Mainnet Faucet</h1>
-          
+
           <div className="text-center space-y-2 mb-8 text-gray-300 w-full">
             <p>{lang === "en" ? "We are the Base mainnet faucet!" : "我們是 Base 主網水龍頭！"}</p>
             <p className="text-blue-400 font-semibold mt-2">{lang === "en" ? "This faucet is dedicated to helping new users who don't have gas fees." : "此水龍頭致力於幫助沒有手續費的新手。"}</p>
+            
             <div className="py-4">
               <p>{lang === "en" ? "Donation Address:" : "打賞地址:"} <span className="text-gray-100 font-mono text-sm md:text-base break-all">0x6998C387c2cdAeC57AE48167e2d8CDADA666D178</span></p>
               <p>{lang === "en" ? "Reward Amount:" : "獎勵數量:"} <span className="text-gray-100">0.000001 ETH</span></p>
@@ -271,8 +266,20 @@ export default function FaucetPage() {
         </main>
       </div>
 
+      {/* 修正後的 Adsterra Banner (直接寫死 HTML 確保載入順序) */}
       <div className="w-full max-w-3xl mx-auto px-4 pb-12 flex flex-col items-center gap-6">
-        <div ref={bannerRef} className="w-full flex justify-center min-h-[90px]"></div>
+        <div dangerouslySetInnerHTML={{ __html: `
+          <script type="text/javascript">
+            atOptions = {
+              'key' : 'e3e91465d5025ecf8016d35a4e7cb47e',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="//www.highperformanceformat.com/e3e91465d5025ecf8016d35a4e7cb47e/invoke.js"></script>
+        ` }} />
       </div>
     </div>
   );
