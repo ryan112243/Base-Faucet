@@ -15,7 +15,13 @@ type FormData = {
 export default function FaucetPage() {
   const [lang, setLang] = useState<"en" | "zh">("en");
   const [initTime, setInitTime] = useState<number>(0);
-  const [turnstileToken, setTurnstileToken] = useState<string>("");
+
+  // --- Turnstile：只在進站當下驗證一次，之後完全不需要再用到 ---
+  const [turnstileVerified, setTurnstileVerified] = useState<boolean>(false);
+  const [verifyingTurnstile, setVerifyingTurnstile] = useState<boolean>(false);
+  const [turnstileError, setTurnstileError] = useState<string>("");
+  const [turnstileKey, setTurnstileKey] = useState<number>(0); // 驗證失敗時強制重新渲染 widget 用
+
   const [hCaptchaToken, setHCaptchaToken] = useState<string>("");
   const [faucetInfo, setFaucetInfo] = useState<{ balance: string; remaining: number } | null>(null);
   const [hasAdBlock, setHasAdBlock] = useState<boolean>(false);
@@ -24,7 +30,7 @@ export default function FaucetPage() {
     type: "idle",
     message: "",
   });
-  
+
   const hCaptchaRef = useRef<HCaptcha>(null);
 
   const {
@@ -42,24 +48,24 @@ export default function FaucetPage() {
     setInitTime(Date.now());
 
     fetch("/api/faucet/info")
-      .then(res => res.json())
-      .then(data => {
-        if (data.balance) {
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.balance !== undefined) {
           setFaucetInfo({ balance: data.balance, remaining: data.remainingClaims });
         }
       })
-      .catch(err => console.error("Failed to fetch faucet info:", err));
+      .catch((err) => console.error("Failed to fetch faucet info:", err));
   }, []);
 
   // 2. AdBlocker 偵測邏輯
   useEffect(() => {
     const checkAdBlock = () => {
-      const ad = document.createElement('div');
-      ad.className = 'adsbox';
-      ad.style.height = '1px';
-      ad.style.width = '1px';
-      ad.style.position = 'absolute';
-      ad.style.top = '-1000px';
+      const ad = document.createElement("div");
+      ad.className = "adsbox";
+      ad.style.height = "1px";
+      ad.style.width = "1px";
+      ad.style.position = "absolute";
+      ad.style.top = "-1000px";
       document.body.appendChild(ad);
 
       setTimeout(() => {
@@ -75,10 +81,40 @@ export default function FaucetPage() {
     checkAdBlock();
   }, []);
 
+  // 3. Turnstile 驗證成功 → 立刻驗證一次，通過就解鎖網站，不需要再記住任何東西
+  const handleTurnstileSuccess = async (token: string) => {
+    setVerifyingTurnstile(true);
+    setTurnstileError("");
+
+    try {
+      const res = await fetch("/api/verify-turnstile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ turnstileToken: token }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Verification failed");
+      }
+
+      setTurnstileVerified(true);
+    } catch (err) {
+      console.error("Turnstile 驗證失敗:", err);
+      setTurnstileError(
+        lang === "en" ? "Verification failed, please try again." : "驗證失敗，請再試一次。"
+      );
+      setTurnstileKey((k) => k + 1); // 重新渲染 widget，讓使用者可以重新驗證
+    } finally {
+      setVerifyingTurnstile(false);
+    }
+  };
+
   const onSubmit = async (data: FormData) => {
     if (hasAdBlock) return;
 
-    // 因為進站已經過了 Turnstile，這裡領取只需要檢查 hCaptchaToken
+    // 領取時只需要 hCaptcha，Turnstile 已經在進站時驗證完畢，不會再用到
     if (!hCaptchaToken) {
       setStatus({
         type: "error",
@@ -87,7 +123,7 @@ export default function FaucetPage() {
       return;
     }
 
-    setStatus({ type: "loading", message: lang === "en" ? "Sending transaction..." : "交易發送中..." });
+    setStatus({ type: "loading", message: lang === "en" ? "Submitting your claim..." : "提交領取中..." });
 
     try {
       const response = await fetch("/api/faucet/claim", {
@@ -97,7 +133,6 @@ export default function FaucetPage() {
           walletAddress: data.walletAddress,
           username: data.username,
           initTime,
-          turnstileToken, // 把進站拿到的 Token 一起傳給後端驗證
           hCaptchaToken,
         }),
       });
@@ -108,15 +143,25 @@ export default function FaucetPage() {
         throw new Error(result.error || (lang === "en" ? "Failed to claim." : "領取失敗。"));
       }
 
-      setStatus({
-        type: "success",
-        message: lang === "en" ? `Success! TxHash: ${result.txHash}` : `成功！交易哈希: ${result.txHash}`,
-      });
-      
-      if (faucetInfo) {
-        setFaucetInfo({
-          balance: (parseFloat(faucetInfo.balance) - 0.000001).toFixed(6),
-          remaining: Math.max(0, faucetInfo.remaining - 1)
+      if (result.txHash) {
+        setStatus({
+          type: "success",
+          message: lang === "en" ? `Success! TxHash: ${result.txHash}` : `成功！交易哈希: ${result.txHash}`,
+        });
+
+        if (faucetInfo) {
+          setFaucetInfo({
+            balance: (parseFloat(faucetInfo.balance) - 0.000001).toFixed(6),
+            remaining: Math.max(0, faucetInfo.remaining - 1),
+          });
+        }
+      } else {
+        setStatus({
+          type: "success",
+          message:
+            lang === "en"
+              ? "Your claim has been queued! It will be sent automatically (every 15 claims or within 1 hour)."
+              : "已加入領取隊列！系統會在滿 15 人或 1 小時內自動發送。",
         });
       }
 
@@ -138,8 +183,8 @@ export default function FaucetPage() {
         <div className="bg-[#1a1e29] border border-red-500/50 p-8 rounded-xl shadow-2xl max-w-md w-full">
           <h1 className="text-3xl font-bold text-red-500 mb-4">AdBlocker Detected</h1>
           <p className="text-gray-300 mb-6">
-            {lang === "en" 
-              ? "Please disable your ad-blocker to access this site. We rely on ads to keep this faucet running." 
+            {lang === "en"
+              ? "Please disable your ad-blocker to access this site. We rely on ads to keep this faucet running."
               : "請關閉廣告攔截器以繼續使用本網站。我們需要廣告收入來維持水龍頭運作。"}
           </p>
           <button onClick={() => window.location.reload()} className="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-lg transition">
@@ -151,9 +196,9 @@ export default function FaucetPage() {
   }
 
   // ==========================================
-  // 【防護第二關】：Turnstile 進站驗證大門
+  // 【防護第二關】：Turnstile 進站驗證大門（只會出現這一次）
   // ==========================================
-  if (!turnstileToken) {
+  if (!turnstileVerified) {
     return (
       <div className="min-h-screen bg-[#11141c] flex items-center justify-center text-center p-6 relative z-[100000]">
         <div className="bg-[#1a1e29] border border-blue-500/30 p-8 rounded-xl shadow-2xl max-w-md w-full space-y-6">
@@ -163,30 +208,41 @@ export default function FaucetPage() {
           <p className="text-gray-300 text-sm">
             {lang === "en" ? "Please complete the challenge to enter the website." : "請完成安全驗證以進入網站。"}
           </p>
-          
-          <div className="flex justify-center">
-            <Turnstile
-              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
-              onSuccess={(token) => setTurnstileToken(token)} // 驗證成功後，寫入 Token 並自動解鎖下方網頁
-              theme="dark"
-            />
+
+          <div className="flex justify-center min-h-[65px] items-center">
+            {verifyingTurnstile ? (
+              <p className="text-gray-400 text-sm">{lang === "en" ? "Verifying..." : "驗證中..."}</p>
+            ) : (
+              <Turnstile
+                key={turnstileKey}
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                onSuccess={handleTurnstileSuccess}
+                onError={() =>
+                  setTurnstileError(
+                    lang === "en" ? "Verification widget error, please retry." : "驗證元件發生錯誤，請重試。"
+                  )
+                }
+                onExpire={() => setTurnstileKey((k) => k + 1)}
+                theme="dark"
+              />
+            )}
           </div>
+
+          {turnstileError && <p className="text-red-400 text-sm">{turnstileError}</p>}
         </div>
       </div>
     );
   }
 
   // ==========================================
-  // 【防護第三關】：真正的 Faucet 網站內容 (僅限真人進入)
+  // 【防護第三關】：真正的 Faucet 網站內容
   // ==========================================
   return (
     <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col font-sans relative">
-      
-      {/* --- Adsterra 廣告腳本 --- */}
+
       <Script src="https://pl30126738.effectivecpmnetwork.com/ca/2f/d7/ca2fd7301eb71fa1a4a9cd38a2e875d9.js" strategy="afterInteractive" />
       <Script src="https://pl30126739.effectivecpmnetwork.com/57/d4/23/57d4234a5a64fee8d0b62c5126ececce.js" strategy="afterInteractive" />
 
-      {/* --- Faucet 專用 A-Ads --- */}
       <div dangerouslySetInnerHTML={{ __html: `
         <div style="position: absolute; z-index: 99999">
           <div style="width:15%;height:100%;position:fixed;text-align:center;font-size:0;top:50%;transform:translateY(-50%);left:0;min-width:100px">
@@ -205,7 +261,6 @@ export default function FaucetPage() {
         </div>
       `}} />
 
-      {/* 頂部導覽列 */}
       <nav className="relative z-[100000] flex items-center justify-between bg-[#1a1e29] border-b border-gray-800">
         <div className="flex">
           <Link href="/" prefetch={false} className="px-6 py-4 bg-blue-600 text-white font-semibold transition">Faucet</Link>
@@ -218,14 +273,12 @@ export default function FaucetPage() {
         </div>
       </nav>
 
-      {/* 最上方廣告 Banner */}
       <div className="flex justify-center w-full mt-6 px-4">
         <a href="https://rollercoin.com/?r=mn67zsfp" target="_blank" rel="noopener noreferrer">
           <img src="https://static.rollercoin.com/static/img/ref/gen2/w970h90.gif" alt="970h90" className="max-w-full h-auto rounded shadow-lg shadow-blue-500/10"/>
         </a>
       </div>
 
-      {/* 中央主要內容區塊 */}
       <div className="flex flex-col w-full max-w-3xl mx-auto px-4 py-8 flex-grow">
         <main className="flex-1 flex flex-col items-center">
           <h1 className="text-5xl md:text-6xl font-bold text-blue-500 mb-6 tracking-wide text-center">Base Mainnet Faucet</h1>
@@ -233,11 +286,12 @@ export default function FaucetPage() {
           <div className="text-center space-y-2 mb-8 text-gray-300 w-full">
             <p>{lang === "en" ? "We are the Base mainnet faucet!" : "我們是 Base 主網水龍頭！"}</p>
             <p className="text-blue-400 font-semibold mt-2">{lang === "en" ? "This faucet is dedicated to helping new users who don't have gas fees." : "此水龍頭致力於幫助沒有手續費的新手。"}</p>
-            
+
             <div className="py-4">
               <p>{lang === "en" ? "Donation Address:" : "打賞地址:"} <span className="text-gray-100 font-mono text-sm md:text-base break-all">0x6998C387c2cdAeC57AE48167e2d8CDADA666D178</span></p>
               <p>{lang === "en" ? "Reward Amount:" : "獎勵數量:"} <span className="text-gray-100">0.000001 ETH</span></p>
               <p>{lang === "en" ? "Claim Time:" : "領取限制:"} <span className="text-gray-100">{lang === "en" ? "1 Claim per 7 Days per IP/Wallet" : "每個 IP 與錢包地址每 7 天限領一次"}</span></p>
+              <p>{lang === "en" ? "Batch Sending:" : "批次發送:"} <span className="text-gray-100">{lang === "en" ? "Every 15 claims or every 1 hour, whichever comes first" : "每滿 15 人或每 1 小時，以先達成者為準"}</span></p>
             </div>
 
             {faucetInfo && (
@@ -248,8 +302,17 @@ export default function FaucetPage() {
                 </p>
                 <p className="flex justify-between">
                   <span className="text-gray-400">{lang === "en" ? "Remaining Claims:" : "剩餘發送次數:"}</span>
-                  <span className="text-blue-400 font-bold">{faucetInfo.remaining}</span>
+                  <span className={`font-bold ${faucetInfo.remaining > 0 ? "text-blue-400" : "text-red-400"}`}>
+                    {faucetInfo.remaining}
+                  </span>
                 </p>
+                {faucetInfo.remaining === 0 && (
+                  <p className="text-red-400 text-xs mt-2">
+                    {lang === "en"
+                      ? "Faucet is currently empty. Claims will not be sent until refilled."
+                      : "水龍頭目前餘額不足，補充前暫不會發送。"}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -272,7 +335,6 @@ export default function FaucetPage() {
               />
             </div>
 
-            {/* Faucet 領取前專用的 hCaptcha */}
             <div className="flex justify-center w-full">
               <HCaptcha
                 sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
@@ -284,10 +346,18 @@ export default function FaucetPage() {
 
             <button
               type="submit"
-              disabled={status.type === "loading" || hasAdBlock}
-              className={`w-full py-3 rounded-md font-bold transition text-white ${status.type === "loading" || hasAdBlock ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-500"}`}
+              disabled={status.type === "loading" || hasAdBlock || faucetInfo?.remaining === 0}
+              className={`w-full py-3 rounded-md font-bold transition text-white ${
+                status.type === "loading" || hasAdBlock || faucetInfo?.remaining === 0
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-500"
+              }`}
             >
-              {status.type === "loading" ? (lang === "en" ? "Processing..." : "處理中...") : (lang === "en" ? "Claim" : "領取")}
+              {status.type === "loading"
+                ? lang === "en" ? "Processing..." : "處理中..."
+                : faucetInfo?.remaining === 0
+                ? lang === "en" ? "Faucet Empty" : "餘額不足"
+                : lang === "en" ? "Claim" : "領取"}
             </button>
 
             {status.message && (
@@ -299,7 +369,6 @@ export default function FaucetPage() {
         </main>
       </div>
 
-      {/* 修正後的 Adsterra Banner */}
       <div className="w-full max-w-3xl mx-auto px-4 pb-12 flex flex-col items-center gap-6">
         <div dangerouslySetInnerHTML={{ __html: `
           <script type="text/javascript">
