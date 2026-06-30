@@ -78,10 +78,11 @@ export default function FaucetPage() {
   const onSubmit = async (data: FormData) => {
     if (hasAdBlock) return;
 
-    if (!turnstileToken && !hCaptchaToken) {
+    // 因為進站已經過了 Turnstile，這裡領取只需要檢查 hCaptchaToken
+    if (!hCaptchaToken) {
       setStatus({
         type: "error",
-        message: lang === "en" ? "Please complete all captcha verifications." : "請完成所有驗證碼。",
+        message: lang === "en" ? "Please complete hCaptcha verification." : "請完成 hCaptcha 驗證碼。",
       });
       return;
     }
@@ -96,7 +97,7 @@ export default function FaucetPage() {
           walletAddress: data.walletAddress,
           username: data.username,
           initTime,
-          turnstileToken,
+          turnstileToken, // 把進站拿到的 Token 一起傳給後端驗證
           hCaptchaToken,
         }),
       });
@@ -128,7 +129,9 @@ export default function FaucetPage() {
     }
   };
 
-  // 若偵測到 AdBlocker，強制蓋版
+  // ==========================================
+  // 【防護第一關】：若偵測到 AdBlocker，強制蓋版
+  // ==========================================
   if (!isCheckingAdBlock && hasAdBlock) {
     return (
       <div className="min-h-screen bg-[#11141c] flex items-center justify-center text-center p-6">
@@ -147,6 +150,35 @@ export default function FaucetPage() {
     );
   }
 
+  // ==========================================
+  // 【防護第二關】：Turnstile 進站驗證大門
+  // ==========================================
+  if (!turnstileToken) {
+    return (
+      <div className="min-h-screen bg-[#11141c] flex items-center justify-center text-center p-6 relative z-[100000]">
+        <div className="bg-[#1a1e29] border border-blue-500/30 p-8 rounded-xl shadow-2xl max-w-md w-full space-y-6">
+          <h2 className="text-2xl font-bold text-blue-500">
+            {lang === "en" ? "Security Check" : "安全驗證"}
+          </h2>
+          <p className="text-gray-300 text-sm">
+            {lang === "en" ? "Please complete the challenge to enter the website." : "請完成安全驗證以進入網站。"}
+          </p>
+          
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+              onSuccess={(token) => setTurnstileToken(token)} // 驗證成功後，寫入 Token 並自動解鎖下方網頁
+              theme="dark"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // 【防護第三關】：真正的 Faucet 網站內容 (僅限真人進入)
+  // ==========================================
   return (
     <div className="min-h-screen bg-[#11141c] text-gray-200 flex flex-col font-sans relative">
       
@@ -240,9 +272,10 @@ export default function FaucetPage() {
               />
             </div>
 
+            {/* Faucet 領取前專用的 hCaptcha */}
             <div className="flex justify-center w-full">
               <HCaptcha
-                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001"}
+                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
                 onVerify={(token) => setHCaptchaToken(token)}
                 ref={hCaptchaRef}
                 theme="dark"
@@ -266,7 +299,7 @@ export default function FaucetPage() {
         </main>
       </div>
 
-      {/* 修正後的 Adsterra Banner (直接寫死 HTML 確保載入順序) */}
+      {/* 修正後的 Adsterra Banner */}
       <div className="w-full max-w-3xl mx-auto px-4 pb-12 flex flex-col items-center gap-6">
         <div dangerouslySetInnerHTML={{ __html: `
           <script type="text/javascript">
